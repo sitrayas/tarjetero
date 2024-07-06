@@ -10,7 +10,7 @@ $mostrar=mysqli_fetch_array($buscandousu);
 ?>
 
 <html>
-<title>VaidrollTeam</title>
+<title>Tarjetero</title>
 <script>
 		function verhorafor12() {
 			var fecha = new Date();
@@ -33,7 +33,7 @@ $mostrar=mysqli_fetch_array($buscandousu);
 <div class="ContenedorPrincipal">	
 <div>
 <h1><?php echo "Bienvenido: ".$mostrar['nom'];?></h1>
-<h2><?php echo "Correo: ".$mostrar['correo'];?></h2>
+
 <h3>La hora del sistema es: <span id="hora"></span></h3>
 </div>
 </div>

@@ -28,19 +28,21 @@ if (!$mostrar) {
 <!DOCTYPE html>
 <html>
 <head>
-<title>VaidrollTeam</title>
+<title>Tarjetero</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
 <div class="BarraLateral">
 <ul>
+    USUARIO: 
     <div class="NomUsuario"><?php echo htmlspecialchars($mostrar['nom'], ENT_QUOTES, 'UTF-8'); ?></div>
+   
     <hr>
     <li><a href="principal.php">Inicio</a></li>
    <!-- <li><a href="usuarios_tabla.php">Usuarios</a></li>    -->
     <li><a href="registrar_hc.php">Ingresar HC</a></li>
-	<li><a href="registrar_hc.php">Consultar HC</a></li>
+	<li><a href="consultar_hc.php">Consultar HC</a></li>
 	<li><a href="registrar_hc.php">Modificar HC</a></li>
 	
     <li><a href="cerrar_sesion.php">Cerrar sesión</a></li>

@@ -24,7 +24,8 @@ $mensaje_registro = ''; // Variable para almacenar el mensaje de registro
 if(isset($_POST['btnregistrar'])) {
     $apellido_paterno = $_POST['apellido_paterno'];
     $apellido_materno = $_POST['apellido_materno'];
-    $nombres = $_POST['nombres'];
+    $primer_nombre = $_POST['primer_nombre'];
+    $segundo_nombre = $_POST['segundo_nombre'];
     $nombre_del_padre = $_POST['nombre_del_padre'];
     $nombre_de_la_madre = $_POST['nombre_de_la_madre'];
     $fecha_de_nacimiento = $_POST['fecha_de_nacimiento'];
@@ -37,7 +38,8 @@ if(isset($_POST['btnregistrar'])) {
     // Validar y sanitizar datos antes de la inserción
     $apellido_paterno = mysqli_real_escape_string($conn, $apellido_paterno);
     $apellido_materno = mysqli_real_escape_string($conn, $apellido_materno);
-    $nombres = mysqli_real_escape_string($conn, $nombres);
+    $primer_nombre = mysqli_real_escape_string($conn, $primer_nombre);
+    $segundo_nombre = mysqli_real_escape_string($conn, $segundo_nombre);
     $nombre_del_padre = mysqli_real_escape_string($conn, $nombre_del_padre);
     $nombre_de_la_madre = mysqli_real_escape_string($conn, $nombre_de_la_madre);
     $fecha_de_nacimiento = mysqli_real_escape_string($conn, $fecha_de_nacimiento);
@@ -46,8 +48,8 @@ if(isset($_POST['btnregistrar'])) {
     $direccion = mysqli_real_escape_string($conn, $direccion);
     $provincia_id = mysqli_real_escape_string($conn, $provincia_id);
     $canton_id = mysqli_real_escape_string($conn, $canton_id);;
-    $parroquia_id = mysqli_real_escape_string($conn, $direccion);
-
+    $parroquia_id = mysqli_real_escape_string($conn, $parroquia_id);
+   
 
 
 
@@ -66,8 +68,8 @@ if(isset($_POST['btnregistrar'])) {
             $mensaje_registro = 'Error: El número de historia clínica ingresado manualmente ya está asignado.';
         } else {
          // Insertar datos en la base de datos
-         $query = "INSERT INTO Pacientes (apellido_paterno, apellido_materno, nombres, nombre_del_padre, nombre_de_la_madre, fecha_de_nacimiento, sexo, cedula, direccion, numero_historia_clinica, fecha_de_ingreso) 
-         VALUES ('$apellido_paterno', '$apellido_materno', '$nombres', '$nombre_del_padre', '$nombre_de_la_madre', '$fecha_de_nacimiento', '$sexo', '$cedula', '$direccion', '$numero_historia_clinica_manual', NOW())";
+         $query = "INSERT INTO Pacientes (apellido_paterno, apellido_materno, primer_nombre, segundo_nombre, nombre_del_padre, nombre_de_la_madre, fecha_de_nacimiento, sexo, cedula, direccion, numero_historia_clinica, fecha_de_ingreso, id_provincia, id_canton, id_parroquia) 
+         VALUES ('$apellido_paterno', '$apellido_materno', '$primer_nombre', '$segundo_nombre', '$nombre_del_padre', '$nombre_de_la_madre', '$fecha_de_nacimiento', '$sexo', '$cedula', '$direccion', '$numero_historia_clinica_manual', NOW(), '$provincia_id', '$canton_id', '$parroquia_id')";
 
             if(mysqli_query($conn, $query)) {
                 $mensaje_registro = 'Paciente registrado correctamente.';
@@ -80,10 +82,10 @@ if(isset($_POST['btnregistrar'])) {
             
         }
     } else {
-        // Insertar datos en la base de datos sin número de historia clínica manual
-        $query = "INSERT INTO Pacientes (apellido_paterno, apellido_materno, nombres, nombre_del_padre, nombre_de_la_madre, fecha_de_nacimiento, sexo, cedula, direccion, fecha_de_ingreso) 
-                  VALUES ('$apellido_paterno', '$apellido_materno', '$nombres', '$nombre_del_padre', '$nombre_de_la_madre', '$fecha_de_nacimiento', '$sexo', '$cedula', '$direccion', NOW())";
-    
+          // Insertar datos en la base de datos sin número de historia clínica manual
+          $query = "INSERT INTO Pacientes (apellido_paterno, apellido_materno, primer_nombre, segundo_nombre, nombre_del_padre, nombre_de_la_madre, fecha_de_nacimiento, sexo, cedula, direccion, fecha_de_ingreso, id_provincia, id_canton, id_parroquia) 
+          VALUES ('$apellido_paterno', '$apellido_materno', '$primer_nombre', '$segundo_nombre', '$nombre_del_padre', '$nombre_de_la_madre', '$fecha_de_nacimiento', '$sexo', '$cedula', '$direccion', NOW(), '$provincia_id', '$canton_id', '$parroquia_id')";
+
         if(mysqli_query($conn, $query)) {
             $numero_historia_clinica_asignado = mysqli_insert_id($conn); // Obtener el ID autoincremental asignado
             $mensaje_registro = 'Paciente registrado correctamente.';
@@ -219,8 +221,12 @@ $(document).ready(function() {
                         </div>
 
                         <div class="form-group">
-                            <label for="nombres">Nombres:</label>
-                            <input type="text" id="nombres" name="nombres" class="form-control" required>
+                            <label for="primer_nombre">Primer Nombre:</label>
+                            <input type="text" class="form-control" id="primer_nombre" name="primer_nombre" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="segundo_nombre">Segundo Nombre:</label>
+                            <input type="text" class="form-control" id="segundo_nombre" name="segundo_nombre" required>
                         </div>
 
                         <div class="form-group">
@@ -246,11 +252,73 @@ $(document).ready(function() {
                             </select>
                         </div>
 
-                        <div class="form-group">
-                            <label for="cedula
-                            ">Cédula:</label>
-                            <input type="text" id="cedula" name="cedula" class="form-control" required>
-                        </div>
+
+
+
+
+
+
+
+
+<!-- Campo para el número de cédula -->
+<div class="form-group">
+    <label for="cedula">Cédula:</label>
+    <div class="input-group">
+        <input type="text" id="cedula" name="cedula" class="form-control" required>
+        <div class="input-group-append">
+            <div class="input-group-text">
+                <input type="checkbox" id="chkExtranjero" name="chkExtranjero"> Si es extranjero marque aquí
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+$(document).ready(function() {
+    $('#chkExtranjero').change(function() {
+        if ($(this).is(':checked')) {
+            generarCedulaAutomatica();
+        } else {
+            $('#cedula').val('');
+        }
+    });
+
+    // Función para generar automáticamente la cédula
+    function generarCedulaAutomatica() {
+        var primer_nombre = $('#primer_nombre').val().trim().toUpperCase();
+        var segundo_nombre = $('#segundo_nombre').val().trim().toUpperCase();
+        var apellido_paterno = $('#apellido_paterno').val().trim().toUpperCase();
+        var apellido_materno = $('#apellido_materno').val().trim().toUpperCase();
+        var fecha_nacimiento = new Date($('#fecha_de_nacimiento').val());
+        var anio_completo = fecha_nacimiento.getFullYear().toString();
+        var tercer_digito_anio = anio_completo.charAt(2); // Obtener el tercer dígito del año
+        var mes = (fecha_nacimiento.getMonth() + 1).toString().padStart(2, '0'); // Mes con dos dígitos
+        var dia = fecha_nacimiento.getDate().toString().padStart(2, '0'); // Día con dos dígitos
+        
+        var cedula_automatica = primer_nombre.substring(0, 2) +
+                                (segundo_nombre ? segundo_nombre.substring(0, 1) : '') +
+                                apellido_paterno.substring(0, 2) +
+                                (apellido_materno ? apellido_materno.substring(0, 1) : '') +
+                                '99' + anio_completo + mes + dia + tercer_digito_anio;
+
+        $('#cedula').val(cedula_automatica);
+    }
+});
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
                        
 <!-- Select dinámico para provincias -->
